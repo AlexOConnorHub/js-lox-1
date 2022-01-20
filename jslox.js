@@ -4,14 +4,16 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const fs = require('fs');
-const {exit} = require('./error');
+const fs = require('graceful-fs');
+const {exit, codes} = require('./error');
+const readline = require('readline');
 
 class Lox {
     main() {
         if (process.argv.length > 3) {
             console.log("Usage: jlox [script]");
-            exit("MISUSE_OF_JSLOX")
+            exit(codes["MISUSE_OF_JSLOX"])
+            return;
         } else if (process.argv.length == 3) {
             this.#runFile(process.argv[2]);
         } else {
@@ -20,34 +22,42 @@ class Lox {
     }
 
     #runFile(path) {
-        var file = fs.readFileSync(path, 'utf8');
-        this.#run(file);
+        fs.readFile(path, (err, data) => {
+            if (err) {
+                if (err["code"] == "ENOENT") {
+                    exit(codes["FILE_DOES_NOT_EXIST"])
+                } else {
+                    exit(codes["FILE_READ_ERROR"])
+                }
+                return;
+            }
+
+            this.#run(toString(data));
+        });
     }
 
-    async #runPrompt(path) {
-        const rl = require('readline').createInterface({
-            input: process.stdin,
-            output: process.stdout,
-            terminal: false
-        });
-        const it = rl[Symbol.asyncIterator]();
-        var line = await it.next();
-        while(line["done"]) {
-            console.log(line["value"]);
-            this.#run(line["value"]);
-            var line = await it.next();
+    #runPrompt(path) {
+        var rl = readline.createInterface(process.stdin, process.stdout);
+        var exit = false;
+        while (!exit) {
+            rl.question("> ", (line) => {
+                if (line == null){
+                    exit = true;
+                } else {
+                    this.#run(line);
+                }
+            });
         }
     }
 
     #run(source) {
-        console.log(source);
-        // var scanner = new Scanner(source);
-        // var tokens = scanner.scanTokens();
+        var scanner = new Scanner(source);
+        var tokens = scanner.scanTokens();
     
-        // // For now, just print the tokens.
-        // tokens.forEach(token => {
-        //     System.out.println(token);            
-        // });
+        // For now, just print the tokens.
+        tokens.forEach(token => {
+            System.out.println(token);            
+        });
     }
 }
 
