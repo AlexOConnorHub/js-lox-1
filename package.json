@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/AlexOConnorHub/js-lox-1#readme",
   "dependencies": {
-    "graceful-fs": "^4.2.9",
     "readline": "^1.3.0"
   }
 }
