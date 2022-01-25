@@ -4,10 +4,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const fs = require('graceful-fs');
-const {exit, codes} = require('./error');
-const readline = require('readline');
-
+const {exit} = require('./error');
+let reader;
 class Lox {
     main() {
         if (process.argv.length > 3) {
@@ -37,27 +35,33 @@ class Lox {
     }
 
     #runPrompt(path) {
-        var rl = readline.createInterface(process.stdin, process.stdout);
-        var exit = false;
-        while (!exit) {
-            rl.question("> ", (line) => {
-                if (line == null){
-                    exit = true;
-                } else {
-                    this.#run(line);
-                }
-            });
-        }
+        reader = require("readline").createInterface({
+            input: process.stdin, 
+            output: process.stdout,
+            terminal: true,
+            prompt: "> ",
+            historySize: 30
+        });
+        process.stdout.write("> ");
+        reader.on('line', (input) => {
+            if (input == null){
+                exit("EXIT");
+            } else {
+                this.#run(input);
+                process.stdout.write("> ");
+            }
+        });
     }
 
     #run(source) {
-        var scanner = new Scanner(source);
-        var tokens = scanner.scanTokens();
+        // console.log(source);
+        // var scanner = new Scanner(source);
+        // var tokens = scanner.scanTokens();
     
-        // For now, just print the tokens.
-        tokens.forEach(token => {
-            System.out.println(token);            
-        });
+        // // For now, just print the tokens.
+        // tokens.forEach(token => {
+        //     System.out.println(token);            
+        // });
     }
 }
 

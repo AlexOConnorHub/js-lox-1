@@ -8,12 +8,12 @@ function exit(errorNumber) {
 }
 
 codes = {
+    "EXIT"                : 0,
     "MISUSE_OF_JSLOX"     : 64,
     "FILE_DOES_NOT_EXIST" : 150,
     "FILE_READ_ERROR"     : 151
 }
 
 module.exports = {
-    codes,
     exit
 };
