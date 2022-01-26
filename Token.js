@@ -14,7 +14,7 @@ class Token {
     }
 
     toString() {
-      return type + " " + lexeme + " " + literal;
+      return this.type + " " + this.lexeme + " " + this.literal;
     }
   }
   

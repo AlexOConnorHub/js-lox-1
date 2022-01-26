@@ -4,7 +4,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const {exit} = require('./error');
+const {exit, warn} = require('./error');
+const { Scanner } = require("./Scanner");
 let reader;
 class Lox {
     main() {
@@ -13,7 +14,10 @@ class Lox {
             exit(codes["MISUSE_OF_JSLOX"])
             return;
         } else if (process.argv.length == 3) {
-            this.#runFile(process.argv[2]);
+            let err_code = this.#runFile(process.argv[2]);
+            if (err_code != 0) {
+                exit(err_code)
+            }
         } else {
             this.#runPrompt();
         }   
@@ -23,14 +27,13 @@ class Lox {
         fs.readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
-                    exit(codes["FILE_DOES_NOT_EXIST"])
+                    exit(-1, 150);
                 } else {
-                    exit(codes["FILE_READ_ERROR"])
+                    exit(-1, 151);
                 }
                 return;
             }
-
-            this.#run(toString(data));
+            exit(this.#run(toString(data)))
         });
     }
 
@@ -45,23 +48,26 @@ class Lox {
         process.stdout.write("> ");
         reader.on('line', (input) => {
             if (input == null){
-                exit("EXIT");
+                exit(0);
             } else {
-                this.#run(input);
+                warn(0, this.#run(input));
                 process.stdout.write("> ");
             }
         });
     }
 
     #run(source) {
-        // console.log(source);
-        // var scanner = new Scanner(source);
-        // var tokens = scanner.scanTokens();
-    
-        // // For now, just print the tokens.
-        // tokens.forEach(token => {
-        //     System.out.println(token);            
-        // });
+        let scanner = new Scanner(source);
+        let tokens = scanner.scanTokens();
+        // For now, just print the tokens.
+        if ((tokens != 0) && (typeof tokens == "number")) {
+            return tokens;
+        }
+        console.log(tokens);
+        tokens.forEach(token => {
+            console.log(token.toString());
+        });
+        return 0;
     }
 }
 

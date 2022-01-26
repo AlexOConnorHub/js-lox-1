@@ -3,17 +3,27 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-function exit(errorNumber) {
-    console.log(`\x1b[6;31;40m${errorNumber}\x1b[0m`);
+function exit(line, errorNumber) {
+    warn(line, errorNumber);
+    process.exit(errorNumber);
+}
+
+function warn(line, errorNumber) {
+    if (errorNumber != 0){
+        console.log(`\x1b[6;31;40m[line ${line}] Error: ${codes[errorNumber]}\x1b[0m`);
+    }
 }
 
 codes = {
-    "EXIT"                : 0,
-    "MISUSE_OF_JSLOX"     : 64,
-    "FILE_DOES_NOT_EXIST" : 150,
-    "FILE_READ_ERROR"     : 151
+    0   : "",
+    62  : "Unterminated string",
+    63  : "Unexpected character",
+    64  : "Misuse of JSLoX",
+    150 : "File does not exist",
+    151 : "File read error"
 }
 
 module.exports = {
-    exit
+    exit,
+    warn
 };
