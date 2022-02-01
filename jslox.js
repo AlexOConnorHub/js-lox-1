@@ -10,8 +10,7 @@ let reader;
 class Lox {
     main() {
         if (process.argv.length > 3) {
-            console.log("Usage: jlox [script]");
-            exit(codes["MISUSE_OF_JSLOX"])
+            exit(65)
             return;
         } else if (process.argv.length == 3) {
             let err_code = this.#runFile(process.argv[2]);

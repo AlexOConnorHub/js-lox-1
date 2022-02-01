@@ -18,7 +18,8 @@ codes = {
     0   : "",
     62  : "Unterminated string",
     63  : "Unexpected character",
-    64  : "Misuse of JSLoX",
+    64  : "Usage: generate_ast <output directory>",
+    65  : "Misuse of JSLoX",
     150 : "File does not exist",
     151 : "File read error"
 }
