@@ -1,8 +1,3 @@
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 function exit(line, errorNumber) {
     warn(line, errorNumber);
     process.exit(errorNumber);

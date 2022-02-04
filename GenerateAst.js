@@ -1,21 +1,12 @@
 #!/usr/bin/env node
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
 
 const { exit } = require("./error");
 const fs = require('fs');
 
 function defineAst(outputDir, baseName, types) {
-    let data = `#!/usr/bin/env node
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT\n\n`;
+    let data = `#!/usr/bin/env node\n\nclass ${baseName} {};\n\n`;
 
     // data += `abstract class ${baseName} {\n`;
-
     // The AST classes.
     types.forEach(type => {
         let className = type[0];
@@ -25,6 +16,7 @@ function defineAst(outputDir, baseName, types) {
 
     data += "module.exports = {\n";
 
+    data += `    ${baseName},\n`
     types.forEach(type => {
         data += `    ${type[0]},\n`
     });
@@ -36,7 +28,7 @@ function defineAst(outputDir, baseName, types) {
 }
 
 function defineType(baseName, className, fieldList) {
-    let data = `class ${className} {\n`;
+    let data = `class ${className} extends ${baseName}{\n`;
     // let data = `class ${className} extends ${baseName} {\n`;
 
     // Fields.
@@ -51,7 +43,7 @@ function defineType(baseName, className, fieldList) {
         data += `${fieldList[i]}, `;
     }
     
-    data += `${fieldList[fieldList.length - 1]} ) {\n`;
+    data += `${fieldList[fieldList.length - 1]} ) {\nsuper()\n`;
 
     // Store parameters in fields.
     fieldList.forEach(field => {
