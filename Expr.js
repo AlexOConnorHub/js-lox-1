@@ -1,32 +1,43 @@
 #!/usr/bin/env node
 
-class Expr {};
+class Expr {
+    accept (visitor) {}
+};
 
 class Binary extends Expr{
     left;
     operator;
     right;
     constructor ( left, operator, right ) {
-super()
-    this.left = left;
-    this.operator = operator;
-    this.right = right;
+        super()
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
+    accept (visitor) {
+        return visitor.visitBinaryExpr(this);
     }
 }
 
 class Grouping extends Expr{
     expression;
     constructor ( expression ) {
-super()
-    this.expression = expression;
+        super()
+        this.expression = expression;
+    }
+    accept (visitor) {
+        return visitor.visitGroupingExpr(this);
     }
 }
 
 class Literal extends Expr{
     value;
     constructor ( value ) {
-super()
-    this.value = value;
+        super()
+        this.value = value;
+    }
+    accept (visitor) {
+        return visitor.visitLiteralExpr(this);
     }
 }
 
@@ -34,9 +45,12 @@ class Unary extends Expr{
     operator;
     right;
     constructor ( operator, right ) {
-super()
-    this.operator = operator;
-    this.right = right;
+        super()
+        this.operator = operator;
+        this.right = right;
+    }
+    accept (visitor) {
+        return visitor.visitUnaryExpr(this);
     }
 }
 

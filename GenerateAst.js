@@ -4,7 +4,7 @@ const { exit } = require("./error");
 const fs = require('fs');
 
 function defineAst(outputDir, baseName, types) {
-    let data = `#!/usr/bin/env node\n\nclass ${baseName} {};\n\n`;
+    let data = `#!/usr/bin/env node\n\nclass ${baseName} {\n    accept (visitor) {}\n};\n\n`;
 
     // data += `abstract class ${baseName} {\n`;
     // The AST classes.
@@ -23,7 +23,6 @@ function defineAst(outputDir, baseName, types) {
 
     data += "}\n"
 
-    // data += `}\n`;
     fs.writeFileSync(outputDir + "/" + baseName + ".js", data);
 }
 
@@ -43,17 +42,17 @@ function defineType(baseName, className, fieldList) {
         data += `${fieldList[i]}, `;
     }
     
-    data += `${fieldList[fieldList.length - 1]} ) {\nsuper()\n`;
+    data += `${fieldList[fieldList.length - 1]} ) {\n        super()\n`;
 
     // Store parameters in fields.
     fieldList.forEach(field => {
-        // let name = field.split(" ")[1];
-        data += `    this.${field} = ${field};\n`;
+        data += `        this.${field} = ${field};\n`;
     });
 
     data += `    }\n`;
-
-
+    data += `    accept (visitor) {\n`;
+    data += `        return visitor.visit${className}${baseName}(this);\n`
+    data += `    }\n`;
     data += `}\n\n`;
     
     return data;

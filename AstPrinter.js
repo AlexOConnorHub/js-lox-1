@@ -2,43 +2,40 @@
 
 const {TokenType} = require("./TokenType");
 const {Token} = require("./Token");
-const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr")
+const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
 
+function print(expr) {   
+    return expr.accept(this);
+}
 
-class AstPrinter {
-    print(expr) {
-        return expr.accept(this)
-    }
+Binary.visitBinaryExpr = function (expr) {
+    return parenthesize(expr.operator.lexeme,
+        expr.left, expr.right);
+}
 
-    visitBinaryExpr(expr) {
-        return parenthesize(expr.operator.lexeme,
-            expr.left, expr.right);
-    }
-    
-    visitGroupingExpr(expr) {
-        return parenthesize("group", expr.expression);
-    }
-    
-    visitLiteralExpr(expr) {
-        if (expr.value == null) return "nil";
-        return expr.value.toString();
-    }
+visitGroupingExpr(expr) {
+    return parenthesize("group", expr.expression);
+}
 
-    visitUnaryExpr(expr) {
-        return parenthesize(expr.operator.lexeme, expr.right);
-    } 
+visitLiteralExpr(expr) {
+    if (expr.value == null) return "nil";
+    return expr.value.toString();
+}
 
-    #parenthesize(name, exprs) {
-        data = `(${name}`;
+visitUnaryExpr(expr) {
+    return parenthesize(expr.operator.lexeme, expr.right);
+} 
 
-        exprs.forEach(expr => {
-            data += " ";
-            data += expr.accept(this);
-        });
-        data += ")";
-    
-        return data;
-    }
+#parenthesize(theName, exprs) {
+    data = `(${theName}`;
+
+    exprs.forEach(expr => {
+        data += " ";
+        data += expr.accept(this);
+    });
+    data += ")";
+
+    return data;
 }
 
 function main(args) {
