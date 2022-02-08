@@ -5,9 +5,6 @@ class Expr {
 };
 
 class Binary extends Expr{
-    left;
-    operator;
-    right;
     constructor ( left, operator, right ) {
         super()
         this.left = left;
@@ -20,7 +17,6 @@ class Binary extends Expr{
 }
 
 class Grouping extends Expr{
-    expression;
     constructor ( expression ) {
         super()
         this.expression = expression;
@@ -31,7 +27,6 @@ class Grouping extends Expr{
 }
 
 class Literal extends Expr{
-    value;
     constructor ( value ) {
         super()
         this.value = value;
@@ -42,8 +37,6 @@ class Literal extends Expr{
 }
 
 class Unary extends Expr{
-    operator;
-    right;
     constructor ( operator, right ) {
         super()
         this.operator = operator;

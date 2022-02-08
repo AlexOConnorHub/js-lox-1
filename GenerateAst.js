@@ -30,11 +30,6 @@ function defineType(baseName, className, fieldList) {
     let data = `class ${className} extends ${baseName}{\n`;
     // let data = `class ${className} extends ${baseName} {\n`;
 
-    // Fields.
-    fieldList.forEach(field => {
-        data += `    ${field};\n`;
-    });
-
     // Constructor.
     data += `    constructor ( `
 
