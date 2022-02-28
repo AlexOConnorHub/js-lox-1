@@ -1,5 +1,5 @@
 const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
-
+const TokenType = require("./TokenType").TokenType;
 class Parser {
     constructor(tokens) {
         super();
@@ -10,7 +10,7 @@ class Parser {
     #equality() {
         let expr = this.#comparison();
     
-        while (this.#match(BANG_EQUAL, EQUAL_EQUAL)) {
+        while (this.#match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             let operator = this.#previous();
             let right = this.#comparison();
             expr = new Binary(expr, operator, right);
@@ -22,7 +22,7 @@ class Parser {
     #comparison() {
         let expr = this.#term();
     
-        while (this.#match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+        while (this.#match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
             let operator = this.#previous();
             let right = this.#term();
             expr = new Binary(expr, operator, right);
@@ -34,9 +34,9 @@ class Parser {
     #factor() {
         let expr = this.#unary();
     
-        while (this.#match(SLASH, STAR)) {
-            let operator = previous();
-            let right = unary();
+        while (this.#match(TokenType.SLASH, TokenType.STAR)) {
+            let operator = this.#previous();
+            let right = this.#unary();
             expr = new Binary(expr, operator, right);
         }
     
@@ -44,19 +44,35 @@ class Parser {
     }
 
     #unary() {
-        if (this.#match(BANG, MINUS)) {
-          let operator = previous();
-          let right = unary();
+        if (this.#match(TokenType.BANG, TokenType.MINUS)) {
+          let operator = this.#previous();
+          let right = this.#unary();
           return new Expr.Unary(operator, right);
         }
     
         return this.#primary();
     }
 
-    #term() {
-        let expr = factor();
+    #primary() {
+        if (this.#match(TokenType.FALSE)) return new Expr.Literal(false);
+        if (this.#match(TokenType.TRUE)) return new Expr.Literal(true);
+        if (this.#match(TokenType.NIL)) return new Expr.Literal(null);
     
-        while (this.#match(MINUS, PLUS)) {
+        if (this.#match(TokenType.NUMBER, TokenType.STRING)) {
+          return new Expr.Literal(this.#previous().literal);
+        }
+    
+        if (this.#match(LEFT_PAREN)) {
+          let expr = this.#expression();
+          this.#consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
+          return new Expr.Grouping(expr);
+        }
+      }
+
+    #term() {
+        let expr = this.#factor();
+    
+        while (this.#match(TokenType.MINUS, TokenType.PLUS)) {
           let operator = this.#previous();
           let right = this.#factor();
           expr = new Binary(expr, operator, right);
@@ -100,4 +116,25 @@ class Parser {
     #expression() {
         return this.#equality();
     }
-  }
+    
+    #consume( type, message) {
+        if (this.#check(type)) return this.#advance();
+
+
+    }
+
+    #error(token, message) {
+        Lox.error(token, message);
+        return new ParseError();
+    }
+
+    static error(token, message) {
+        if (token.type == TokenType.EOF) {
+          report(token.line, " at end", message);
+        } else {
+          report(token.line, " at '" + token.lexeme + "'", message);
+        }
+    }
+}
+
+module.exports = Parser;
