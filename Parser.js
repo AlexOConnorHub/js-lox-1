@@ -1,5 +1,8 @@
-const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
-const TokenType = require("./TokenType").TokenType;
+import { default as Token } from "./Token";
+import _default from "./Expr";
+const { Expr, Binary, Grouping, Literal, Unary } = _default;
+const TokenType = require("./TokenType").default.TokenType;
+import { exit, warn } from "./error";
 class Parser {
     constructor(tokens) {
         super();
@@ -120,12 +123,16 @@ class Parser {
     #consume( type, message) {
         if (this.#check(type)) return this.#advance();
 
-
+        this.#error(this.#peek(), message);
     }
 
     #error(token, message) {
-        Lox.error(token, message);
-        return new ParseError();
+        if (token.type == TokenType.EOF) {
+            warn(token.line, " at end", message);
+        } else {
+            warn(token.line, " at '" + token.lexeme + "'", message);
+        }
+        return new this.ParseError();
     }
 
     static error(token, message) {
@@ -137,4 +144,6 @@ class Parser {
     }
 }
 
-module.exports = Parser;
+export default {
+    Parser
+};

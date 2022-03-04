@@ -47,7 +47,7 @@ class Unary extends Expr{
     }
 }
 
-module.exports = {
+export default {
     Expr,
     Binary,
     Grouping,

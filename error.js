@@ -5,7 +5,7 @@ function exit(line, errorNumber) {
 
 function warn(line, errorNumber) {
     if (errorNumber != 0){
-        console.log(`\x1b[6;31;40m[line ${line}] Error: ${codes[errorNumber]}\x1b[0m`);
+        console.error(`\x1b[6;31;40m[line ${line}] Error: ${codes[errorNumber]}\x1b[0m`);
     }
 }
 
@@ -19,7 +19,7 @@ codes = {
     151 : "File read error"
 }
 
-module.exports = {
+export default {
     exit,
     warn
 };

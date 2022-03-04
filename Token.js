@@ -3,7 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const TokenType = require("./TokenType");
+import TokenType from "./TokenType";
 
 class Token {  
     constructor(type, lexeme, literal, line){
@@ -18,6 +18,6 @@ class Token {
     }
   }
   
-  module.exports = {
-      Token
-  }
+export default {
+    Token
+}

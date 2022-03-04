@@ -3,9 +3,9 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const {TokenType} = require("./TokenType");
-const {Token} = require("./Token");
-const {exit, warn} = require("./error");
+import { TokenType } from "./TokenType";
+import { Token } from "./Token";
+import { exit, warn } from "./error";
 
 class Scanner {
     #source
@@ -181,6 +181,6 @@ class Scanner {
     }
 }
   
-module.exports = {
+export default {
     Scanner
 };

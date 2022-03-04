@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
-const AstPritner = require("./AstPrinter");
-const {TokenType} = require("./TokenType");
-const {Token} = require("./Token");
-const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
+import AstPritner from "./AstPrinter";
+import token from "./TokenType";
+const { TokenType } = token;
+import _default from "./Token";
+const { Token } = _default;
+import __default from "./Expr";
+const { Expr, Binary, Grouping, Literal, Unary } = __default;
 
 function testAstPrinter() {
     let expression = new Binary(

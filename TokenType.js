@@ -52,6 +52,6 @@ const TokenType = {
     EOF    : "eof"
 };
   
-module.exports = {
+export default {
     TokenType
 }

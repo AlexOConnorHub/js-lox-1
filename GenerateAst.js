@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { exit } = require("./error");
-const fs = require('fs');
+import { exit } from "./error";
+import { writeFileSync } from 'fs';
 
 function defineAst(outputDir, baseName, types) {
     let data = `#!/usr/bin/env node\n\nclass ${baseName} {\n    accept (visitor) {}\n};\n\n`;
@@ -23,7 +23,7 @@ function defineAst(outputDir, baseName, types) {
 
     data += "}\n"
 
-    fs.writeFileSync(outputDir + "/" + baseName + ".js", data);
+    writeFileSync(outputDir + "/" + baseName + ".js", data);
 }
 
 function defineType(baseName, className, fieldList) {

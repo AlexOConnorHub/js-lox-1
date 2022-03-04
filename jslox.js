@@ -4,9 +4,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-const {exit, warn} = require('./error');
-const { Scanner } = require("./Scanner");
-let reader;
+import { exit, warn } from './error';
+import { Scanner } from "./Scanner";
 class Lox {
     main() {
         if (process.argv.length > 3) {
@@ -37,7 +36,7 @@ class Lox {
     }
 
     #runPrompt(path) {
-        reader = require("readline").createInterface({
+        let reader = require("readline").createInterface({
             input: process.stdin, 
             output: process.stdout,
             terminal: true,
