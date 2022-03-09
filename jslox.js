@@ -1,11 +1,9 @@
 #! /usr/bin/env node
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
 
-import { exit, warn } from './error';
-import { Scanner } from "./Scanner";
+let { exit, warn } = require('./error');
+let { Scanner } = require("./Scanner");
+let { Parser } = require("./Parser");
+let { AstPrinter } = require("./AstPrinter");
 class Lox {
     main() {
         if (process.argv.length > 3) {
@@ -57,11 +55,19 @@ class Lox {
     #run(source) {
         let scanner = new Scanner(source);
         let tokens = scanner.scanTokens();
+        let parser = new Parser(tokens);
+        let expression = parser.parse();
+
+        // Stop if there was a syntax error.
+        if (hadError) return;
+
+        console.log(new AstPrinter().print(expression));
+
+
         // For now, just print the tokens.
         if ((tokens != 0) && (typeof tokens == "number")) {
             return tokens;
         }
-        console.log(tokens);
         tokens.forEach(token => {
             console.log(token.toString());
         });

@@ -1,7 +1,4 @@
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
+#! /usr/bin/env node
 
 const TokenType = {
     // Single-character tokens.
@@ -52,6 +49,4 @@ const TokenType = {
     EOF    : "eof"
 };
   
-export default {
-    TokenType
-}
+module.exports = { TokenType };

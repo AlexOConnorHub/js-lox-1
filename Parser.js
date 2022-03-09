@@ -1,8 +1,11 @@
-import { default as Token } from "./Token";
-import _default from "./Expr";
-const { Expr, Binary, Grouping, Literal, Unary } = _default;
+#! /usr/bin/env node
+
+let { Token } = require("./Token");
+const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
 const TokenType = require("./TokenType").default.TokenType;
-import { exit, warn } from "./error";
+
+// let { Expr, Binary, Grouping, Literal} = require _default);
+let { exit, warn } = require("./error");
 class Parser {
     constructor(tokens) {
         super();
@@ -70,6 +73,8 @@ class Parser {
           this.#consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
           return new Expr.Grouping(expr);
         }
+
+        throw this.#error(peek(), "Expect expression.");
       }
 
     #term() {
@@ -123,7 +128,7 @@ class Parser {
     #consume( type, message) {
         if (this.#check(type)) return this.#advance();
 
-        this.#error(this.#peek(), message);
+        throw this.#error(this.#peek(), message);
     }
 
     #error(token, message) {
@@ -142,8 +147,35 @@ class Parser {
           report(token.line, " at '" + token.lexeme + "'", message);
         }
     }
+
+    #synchronize() {
+        this.#advance();
+    
+        while (!this.#isAtEnd()) {
+          if (this.#previous().type == TokenType.SEMICOLON) return;
+    
+          switch (this.#peek().type) {
+            case TokenType.CLASS:
+            case TokenType.FUN:
+            case TokenType.VAR:
+            case TokenType.FOR:
+            case TokenType.IF:
+            case TokenType.WHILE:
+            case TokenType.PRINT:
+            case TokenType.RETURN:
+              return;
+          }
+    
+          this.#advance();
+        }
+    }
+    #parse() {
+        try {
+          return this.#expression();
+        } catch (error) {
+          return null;
+        }
+      }
 }
 
-export default {
-    Parser
-};
+module.exports = { Parser };

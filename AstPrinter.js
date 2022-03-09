@@ -33,4 +33,4 @@ class AstPritner  {
     }
 }
 
-export default AstPritner;
+module.exports = { AstPritner };

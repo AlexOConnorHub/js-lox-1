@@ -1,11 +1,8 @@
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
+#! /usr/bin/env node
 
-import { TokenType } from "./TokenType";
-import { Token } from "./Token";
-import { exit, warn } from "./error";
+let { TokenType } = require("./TokenType");
+let { Token } = require("./Token");
+let { exit, warn } = require("./error");
 
 class Scanner {
     #source
@@ -181,6 +178,4 @@ class Scanner {
     }
 }
   
-export default {
-    Scanner
-};
+module.exports = { Scanner };

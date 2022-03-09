@@ -1,3 +1,5 @@
+#!/usr/env/bin node
+
 function exit(line, errorNumber) {
     warn(line, errorNumber);
     process.exit(errorNumber);
@@ -19,7 +21,7 @@ codes = {
     151 : "File read error"
 }
 
-export default {
+module.exports = {
     exit,
     warn
 };

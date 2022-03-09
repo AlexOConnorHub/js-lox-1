@@ -1,9 +1,6 @@
-// Copyright (c) 2022 Alex O'Connor
-// 
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
+#! /usr/bin/env node
 
-import TokenType from "./TokenType";
+const TokenType = require("./TokenType");
 
 class Token {  
     constructor(type, lexeme, literal, line){
@@ -18,6 +15,4 @@ class Token {
     }
   }
   
-export default {
-    Token
-}
+module.exports = { Token };
