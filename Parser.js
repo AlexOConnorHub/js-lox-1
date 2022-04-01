@@ -5,7 +5,7 @@ const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
 const TokenType = require("./TokenType").default.TokenType;
 
 // let { Expr, Binary, Grouping, Literal} = require _default);
-let { exit, warn } = require("./error");
+let { jsLoxError } = require("./error");
 class Parser {
     constructor(tokens) {
         super();
@@ -133,11 +133,10 @@ class Parser {
 
     #error(token, message) {
         if (token.type == TokenType.EOF) {
-            warn(token.line, " at end", message);
+            return (new jsLoxError(token.line, message + " at end.", 63));
         } else {
-            warn(token.line, " at '" + token.lexeme + "'", message);
+            return (new jsLoxError(token.line, `" at '${token.lexeme}' ${message}`, 63));
         }
-        return new this.ParseError();
     }
 
     #synchronize() {
@@ -166,7 +165,7 @@ class Parser {
         try {
           return this.#expression();
         } catch (error) {
-          return null;
+          throw error;
         }
       }
 }

@@ -1,23 +1,20 @@
 #! /usr/bin/env node
 
-let { exit, warn } = require('./error');
+let { jsLoxError } = require('./error');
 let { Scanner } = require("./Scanner");
 let { Parser } = require("./Parser");
 let { Interpreter } = require("./Interpreter");
 let { AstPrinter } = require("./AstPrinter");
 class Lox {
     static interpreter = new Interpreter();
-    // hadError
-    // hadRuntimeError
+    hadError = false;
+    hadRuntimeError = false;
     main() {
         if (process.argv.length > 3) {
-            exit(65)
+            jsLoxError.exit(65)
             return;
         } else if (process.argv.length == 3) {
             let err_code = this.#runFile(process.argv[2]);
-            if (err_code != 0) {
-                exit(err_code)
-            }
         } else {
             this.#runPrompt();
         }   
@@ -27,17 +24,18 @@ class Lox {
         fs.readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
-                    exit(-1, 150);
+                    jsLoxError.exit(-1, 150);
                 } else {
-                    exit(-1, 151);
+                    jsLoxError.exit(-1, 151);
                 }
                 return;
             }
-            exit(this.#run(toString(data)))
+            this.#run(toString(data));
+            // Handle error
         });
     }
 
-    #runPrompt(path) {
+    #runPrompt() {
         let reader = require("readline").createInterface({
             input: process.stdin, 
             output: process.stdout,
@@ -48,9 +46,11 @@ class Lox {
         process.stdout.write("> ");
         reader.on('line', (input) => {
             if (input == null){
-                exit(0);
+                jsLoxError.exit(0);
             } else {
-                warn(0, this.#run(input));
+                this.#run(input);
+                // Handle error
+
                 process.stdout.write("> ");
             }
         });
@@ -60,10 +60,13 @@ class Lox {
         let scanner = new Scanner(source);
         let tokens = scanner.scanTokens();
         let parser = new Parser(tokens);
-        let expression = parser.parse();
-
-        // Stop if there was a syntax error.
-        if (hadError) return;
+        let expression;
+        try {
+            expression = parser.parse();
+        } catch (error) {
+            // Stop if there was a syntax error.
+            return error;
+        }
 
         console.log(new AstPrinter().print(expression));
 
@@ -74,8 +77,11 @@ class Lox {
         tokens.forEach(token => {
             console.log(token.toString());
         });
-
-        interpreter.interpret(expression);
+        try {
+            interpreter.interpret(expression);
+        } catch (error) {
+            return error;
+        }
 
         return 0;
     }
