@@ -3,8 +3,12 @@
 let { exit, warn } = require('./error');
 let { Scanner } = require("./Scanner");
 let { Parser } = require("./Parser");
+let { Interpreter } = require("./Interpreter");
 let { AstPrinter } = require("./AstPrinter");
 class Lox {
+    static interpreter = new Interpreter();
+    // hadError
+    // hadRuntimeError
     main() {
         if (process.argv.length > 3) {
             exit(65)
@@ -63,7 +67,6 @@ class Lox {
 
         console.log(new AstPrinter().print(expression));
 
-
         // For now, just print the tokens.
         if ((tokens != 0) && (typeof tokens == "number")) {
             return tokens;
@@ -71,6 +74,9 @@ class Lox {
         tokens.forEach(token => {
             console.log(token.toString());
         });
+
+        interpreter.interpret(expression);
+
         return 0;
     }
 }

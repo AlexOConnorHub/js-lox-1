@@ -140,14 +140,6 @@ class Parser {
         return new this.ParseError();
     }
 
-    static error(token, message) {
-        if (token.type == TokenType.EOF) {
-          report(token.line, " at end", message);
-        } else {
-          report(token.line, " at '" + token.lexeme + "'", message);
-        }
-    }
-
     #synchronize() {
         this.#advance();
     
@@ -169,6 +161,7 @@ class Parser {
           this.#advance();
         }
     }
+    
     #parse() {
         try {
           return this.#expression();
