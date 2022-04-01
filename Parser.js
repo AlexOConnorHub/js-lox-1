@@ -1,10 +1,6 @@
-#! /usr/bin/env node
+const { Binary } = require("./Expr");
+const TokenType = require("./TokenType");
 
-let { Token } = require("./Token");
-const { Expr, Binary, Grouping, Literal, Unary } = require("./Expr");
-const TokenType = require("./TokenType").default.TokenType;
-
-// let { Expr, Binary, Grouping, Literal} = require _default);
 let { jsLoxError } = require("./error");
 class Parser {
     constructor(tokens) {
@@ -133,9 +129,9 @@ class Parser {
 
     #error(token, message) {
         if (token.type == TokenType.EOF) {
-            return (new jsLoxError(token.line, message + " at end.", 63));
+            return (new jsLoxError(token.line, `${message} at end."`));
         } else {
-            return (new jsLoxError(token.line, `" at '${token.lexeme}' ${message}`, 63));
+            return (new jsLoxError(token.line, message, token));
         }
     }
 

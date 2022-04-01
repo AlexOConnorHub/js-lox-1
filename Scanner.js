@@ -1,8 +1,5 @@
-#! /usr/bin/env node
-
 let { TokenType } = require("./TokenType");
 let { Token } = require("./Token");
-let { exit, warn } = require("./error");
 
 class Scanner {
     #source

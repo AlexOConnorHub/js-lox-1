@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 class AstPritner  {
     print(expr) {   
         return expr.accept(this);

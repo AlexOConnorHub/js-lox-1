@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 const TokenType = require("./TokenType");
 
 class Token {  

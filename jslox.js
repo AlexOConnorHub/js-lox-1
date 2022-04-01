@@ -1,5 +1,4 @@
 #! /usr/bin/env node
-
 let { jsLoxError } = require('./error');
 let { Scanner } = require("./Scanner");
 let { Parser } = require("./Parser");
@@ -11,10 +10,11 @@ class Lox {
     hadRuntimeError = false;
     main() {
         if (process.argv.length > 3) {
-            jsLoxError.exit(65)
+            let err = new jsLoxError(-1, 65);
+            jsLoxError.exit(err.exitCode, err.message);
             return;
         } else if (process.argv.length == 3) {
-            let err_code = this.#runFile(process.argv[2]);
+            this.#runFile(process.argv[2]);
         } else {
             this.#runPrompt();
         }   
@@ -24,14 +24,19 @@ class Lox {
         fs.readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
-                    jsLoxError.exit(-1, 150);
+                    let err = new jsLoxError(-1, 150);
+                    jsLoxError.exit(err.exitCode, err.message);
                 } else {
-                    jsLoxError.exit(-1, 151);
+                    let err = new jsLoxError(-1, 151);
+                    jsLoxError.exit(err.exitCode, err.message);
                 }
                 return;
             }
-            this.#run(toString(data));
-            // Handle error
+            let ret = this.#run(toString(data));
+            if (ret instanceof jsLoxError) {
+                jsLoxError.warn(error.message);
+            }
+            jsLoxError.exit(0);
         });
     }
 
@@ -48,9 +53,10 @@ class Lox {
             if (input == null){
                 jsLoxError.exit(0);
             } else {
-                this.#run(input);
-                // Handle error
-
+                let ret = this.#run(input);
+                if (ret instanceof jsLoxError) {
+                    jsLoxError.warn(error.message);
+                }
                 process.stdout.write("> ");
             }
         });

@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 
-class Expr {
-    accept (visitor) {}
-};
-
-class Binary extends Expr{
+class Binary{
     constructor ( left, operator, right ) {
         super()
         this.left = left;
@@ -16,7 +12,7 @@ class Binary extends Expr{
     }
 }
 
-class Grouping extends Expr{
+class Grouping{
     constructor ( expression ) {
         super()
         this.expression = expression;
@@ -26,7 +22,7 @@ class Grouping extends Expr{
     }
 }
 
-class Literal extends Expr{
+class Literal{
     constructor ( value ) {
         super()
         this.value = value;
@@ -36,7 +32,7 @@ class Literal extends Expr{
     }
 }
 
-class Unary extends Expr{
+class Unary{
     constructor ( operator, right ) {
         super()
         this.operator = operator;
@@ -48,7 +44,6 @@ class Unary extends Expr{
 }
 
 module.exports = {
-    Expr,
     Binary,
     Grouping,
     Literal,

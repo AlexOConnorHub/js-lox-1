@@ -1,5 +1,3 @@
-#! /usr/bin/env node
-
 const TokenType = {
     // Single-character tokens.
     LEFT_PAREN  : '(',
