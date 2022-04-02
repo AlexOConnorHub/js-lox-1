@@ -1,4 +1,4 @@
-const TokenType = require("./TokenType").default.TokenType;
+const TokenType = require("./TokenType");
 
 class Interpreter {
 
@@ -7,7 +7,7 @@ class Interpreter {
             value = this.#evaluate(expression);
             console.log(this.#stringify(value));
         } catch (error) {
-            // Lox.runtimeError(error);
+            throw error;
         }
     }
     

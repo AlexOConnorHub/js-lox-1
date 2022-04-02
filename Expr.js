@@ -2,7 +2,6 @@
 
 class Binary{
     constructor ( left, operator, right ) {
-        super()
         this.left = left;
         this.operator = operator;
         this.right = right;
@@ -14,7 +13,6 @@ class Binary{
 
 class Grouping{
     constructor ( expression ) {
-        super()
         this.expression = expression;
     }
     accept (visitor) {
@@ -24,7 +22,6 @@ class Grouping{
 
 class Literal{
     constructor ( value ) {
-        super()
         this.value = value;
     }
     accept (visitor) {
@@ -34,7 +31,6 @@ class Literal{
 
 class Unary{
     constructor ( operator, right ) {
-        super()
         this.operator = operator;
         this.right = right;
     }

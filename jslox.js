@@ -21,6 +21,7 @@ class Lox {
     }
 
     #runFile(path) {
+        this.interpreter = new Interpreter();
         fs.readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
@@ -41,6 +42,7 @@ class Lox {
     }
 
     #runPrompt() {
+        this.interpreter = new Interpreter();
         let reader = require("readline").createInterface({
             input: process.stdin, 
             output: process.stdout,
@@ -55,7 +57,7 @@ class Lox {
             } else {
                 let ret = this.#run(input);
                 if (ret instanceof jsLoxError) {
-                    jsLoxError.warn(error.message);
+                    jsLoxError.warn(ret.message);
                 }
                 process.stdout.write("> ");
             }
@@ -71,20 +73,18 @@ class Lox {
             expression = parser.parse();
         } catch (error) {
             // Stop if there was a syntax error.
+            console.log(error);
             return error;
         }
-
         console.log(new AstPrinter().print(expression));
 
         // For now, just print the tokens.
-        if ((tokens != 0) && (typeof tokens == "number")) {
-            return tokens;
-        }
         tokens.forEach(token => {
             console.log(token.toString());
         });
+
         try {
-            interpreter.interpret(expression);
+            this.interpreter.interpret(expression);
         } catch (error) {
             return error;
         }

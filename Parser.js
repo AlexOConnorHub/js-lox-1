@@ -1,18 +1,17 @@
-const { Binary } = require("./Expr");
+const { Binary, Unary, Grouping, Literal } = require("./Expr");
 const TokenType = require("./TokenType");
 
 let { jsLoxError } = require("./error");
 class Parser {
     constructor(tokens) {
-        super();
-        this.#tokens = tokens;
-        this.#current = 0;
+        this.tokens = tokens;
+        this.current = 0;
     }
 
     #equality() {
         let expr = this.#comparison();
     
-        while (this.#match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+        while (this.#match([TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL])) {
             let operator = this.#previous();
             let right = this.#comparison();
             expr = new Binary(expr, operator, right);
@@ -24,7 +23,7 @@ class Parser {
     #comparison() {
         let expr = this.#term();
     
-        while (this.#match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+        while (this.#match([TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL])) {
             let operator = this.#previous();
             let right = this.#term();
             expr = new Binary(expr, operator, right);
@@ -36,7 +35,7 @@ class Parser {
     #factor() {
         let expr = this.#unary();
     
-        while (this.#match(TokenType.SLASH, TokenType.STAR)) {
+        while (this.#match([TokenType.SLASH, TokenType.STAR])) {
             let operator = this.#previous();
             let right = this.#unary();
             expr = new Binary(expr, operator, right);
@@ -46,37 +45,37 @@ class Parser {
     }
 
     #unary() {
-        if (this.#match(TokenType.BANG, TokenType.MINUS)) {
+        if (this.#match([TokenType.BANG, TokenType.MINUS])) {
           let operator = this.#previous();
           let right = this.#unary();
-          return new Expr.Unary(operator, right);
+          return new Unary(operator, right);
         }
     
         return this.#primary();
     }
 
     #primary() {
-        if (this.#match(TokenType.FALSE)) return new Expr.Literal(false);
-        if (this.#match(TokenType.TRUE)) return new Expr.Literal(true);
-        if (this.#match(TokenType.NIL)) return new Expr.Literal(null);
+        if (this.#match([TokenType.FALSE])) return new Literal(false);
+        if (this.#match([TokenType.TRUE])) return new Literal(true);
+        if (this.#match([TokenType.NIL])) return new Literal(null);
     
-        if (this.#match(TokenType.NUMBER, TokenType.STRING)) {
-          return new Expr.Literal(this.#previous().literal);
+        if (this.#match([TokenType.NUMBER, TokenType.STRING])) {
+          return new Literal(this.#previous().literal);
         }
     
-        if (this.#match(LEFT_PAREN)) {
+        if (this.#match([TokenType.LEFT_PAREN])) {
           let expr = this.#expression();
           this.#consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
-          return new Expr.Grouping(expr);
+          return new Grouping(expr);
         }
 
-        throw this.#error(peek(), "Expect expression.");
+        throw this.#error(this.#peek(), "Expect expression.");
       }
 
     #term() {
         let expr = this.#factor();
     
-        while (this.#match(TokenType.MINUS, TokenType.PLUS)) {
+        while (this.#match([TokenType.MINUS, TokenType.PLUS])) {
           let operator = this.#previous();
           let right = this.#factor();
           expr = new Binary(expr, operator, right);
@@ -86,12 +85,19 @@ class Parser {
     }
     
     #match(types) {
-        types.forEach(type => {
-            if (this.#check(type)) {
-                this.#advance();
-                return true;
-            }            
-        }); 
+        console.log(this);
+        for (let type of types) {
+          if (this.#check(type)) {
+            this.#advance();
+            return true;
+          }
+        }
+        // types.forEach(type => {
+        //     if (this.#check(type)) {
+        //         this.#advance();
+        //         return true;
+        //     }            
+        // }); 
         return false;
     }
     
@@ -101,20 +107,20 @@ class Parser {
     }
 
     #advance() {
-        if (!this.#isAtEnd()) this.#current++;
+        if (!this.#isAtEnd()) this.current++;
         return this.#previous();
     }
 
     #isAtEnd() {
-        return this.#peek().type == EOF;
+        return this.#peek().type == TokenType.EOF;
     }
     
     #peek() {
-        return this.#tokens.get(this.#current);
+        return this.tokens[this.current];
     }
     
     #previous() {
-        return this.#tokens.get(this.#current - 1);
+        return this.tokens[this.current - 1];
     }
 
     #expression() {
@@ -157,7 +163,7 @@ class Parser {
         }
     }
     
-    #parse() {
+    parse() {
         try {
           return this.#expression();
         } catch (error) {
