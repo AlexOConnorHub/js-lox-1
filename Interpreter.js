@@ -6,7 +6,7 @@ class Interpreter {
     interpret(expression) { 
         try {
             let value = this.#evaluate(expression);
-            console.log(this.#stringify(value));
+            return this.#stringify(value);
         } catch (error) {
             throw error;
         }

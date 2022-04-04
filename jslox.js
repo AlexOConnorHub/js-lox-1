@@ -5,8 +5,6 @@ let { Parser } = require("./Parser");
 let { Interpreter } = require("./Interpreter");
 class Lox {
     static interpreter = new Interpreter();
-    hadError = false;
-    hadRuntimeError = false;
     main() {
         if (process.argv.length > 3) {
             let err = new jsLoxError(-1, 65);
@@ -16,11 +14,10 @@ class Lox {
             this.#runFile(process.argv[2]);
         } else {
             this.#runPrompt();
-        }   
+        }
     }
 
     #runFile(path) {
-        this.interpreter = new Interpreter();
         fs.readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
@@ -35,15 +32,17 @@ class Lox {
             let ret = this.#run(toString(data));
             if (ret instanceof jsLoxError) {
                 jsLoxError.warn(error.message);
+            } else if (ret != 0) {
+                throw ret;
+            } else {
+                jsLoxError.exit(0);
             }
-            jsLoxError.exit(0);
         });
     }
 
     #runPrompt() {
-        this.interpreter = new Interpreter();
         let reader = require("readline").createInterface({
-            input: process.stdin, 
+            input: process.stdin,
             output: process.stdout,
             terminal: true,
             prompt: "> ",
@@ -67,22 +66,12 @@ class Lox {
 
     #run(source) {
         let scanner = new Scanner(source);
-        let tokens = scanner.scanTokens();
-        let parser = new Parser(tokens);
-        let expression;
+        let parser = new Parser(scanner.scanTokens());
         try {
-            expression = parser.parse();
-        } catch (error) {
-            // Stop if there was a syntax error.
-            return error;
-        }
-
-        try {
-            this.interpreter.interpret(expression);
+            console.log(Lox.interpreter.interpret(parser.parse()));
         } catch (error) {
             return error;
         }
-
         return 0;
     }
 }
