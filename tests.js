@@ -6,6 +6,8 @@ const { Scanner } = require("./Scanner");
 const { Token } = require("./Token");
 const { Binary, Grouping, Literal, Unary } = require("./Expr");
 const { Interpreter } = require("./Interpreter");
+const util = require("util");
+const fs = require("fs");
 
 let testCount = 0;
 let failed = 0;
@@ -217,10 +219,52 @@ function testNestingScanner() {
 
 function testParser() {
     let scanner = new Scanner("((57 / (2 - -4)) <= (-8 * -9)) != true");
-    let resp = scanner.scanTokens();
-    let parser = new Parser(resp);
-    let program = parser.parse();
-    console.log(program);
+    let parser = new Parser(scanner.scanTokens());
+    let expressions = parser.parse();
+
+    // Top level
+    assert(true, expressions instanceof Binary, "Parser");
+
+    // Second level
+    assert(true, expressions.left instanceof Grouping, "Parser");
+    assert(true, expressions.operator instanceof Token, "Parser");
+    assert(true, expressions.right instanceof Literal, "Parser");
+
+    // Third level
+    assert(true, expressions.left.expression instanceof Binary, "Parser");
+
+    // Fourth level
+    assert(true, expressions.left.expression.left instanceof Grouping, "Parser");
+    assert(true, expressions.left.expression.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.right instanceof Grouping, "Parser");
+
+    // Fifth level
+    assert(true, expressions.left.expression.left.expression instanceof Binary, "Parser");
+    assert(true, expressions.left.expression.right.expression instanceof Binary, "Parser");
+    
+    // Sixth level
+    assert(true, expressions.left.expression.left.expression.left instanceof Literal, "Parser");
+    assert(true, expressions.left.expression.left.expression.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.left.expression.right instanceof Grouping, "Parser");
+    assert(true, expressions.left.expression.right.expression.left instanceof Unary, "Parser");
+    assert(true, expressions.left.expression.right.expression.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.right.expression.right instanceof Unary, "Parser");
+
+    // Seventh level
+    assert(true, expressions.left.expression.left.expression.right.expression instanceof Binary, "Parser");
+    assert(true, expressions.left.expression.right.expression.left.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.right.expression.left.right instanceof Literal, "Parser");
+    assert(true, expressions.left.expression.right.expression.right.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.right.expression.right.right instanceof Literal, "Parser");
+
+    // Eighth level
+    assert(true, expressions.left.expression.left.expression.right.expression.left instanceof Literal, "Parser");
+    assert(true, expressions.left.expression.left.expression.right.expression.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.left.expression.right.expression.right instanceof Unary, "Parser");
+
+    // Ninth level
+    assert(true, expressions.left.expression.left.expression.right.expression.right.operator instanceof Token, "Parser");
+    assert(true, expressions.left.expression.left.expression.right.expression.right.right instanceof Literal, "Parser");
 }
 
 function testAstPrinter() {
@@ -239,21 +283,105 @@ function testAstPrinter() {
     assert("(group (+ 5 5))", pretty.print(expression), "AST Printer");
 }
 
-function testInterpreter() {
-    let expression = new Binary(
-        new Unary(new Token(TokenType.MINUS, "-", null, 1), new Literal(123)),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Grouping( new Literal(45.67) )
-    );
-    let interpreter = new Interpreter(expression);
-    interpreter.interpret(expression);
-    assert(15129.67, expression.evaluate(), "Interpreter");
+function testBasicInterpreter() {
+    let scanner = new Scanner("1 + 1");
+    let resp = scanner.scanTokens();
+    let parser = new Parser(resp);
+    let expression = parser.parse();
+    let interpreter = new Interpreter();
+    let final = interpreter.interpret(expression);
+    assert("2", final, "Basic Interpreter");
 
-    expression = new Unary(new Token(TokenType.BANG, "!", null, 1), new Unary(new Token(TokenType.MINUS, "-", null, 1), new Literal(5)));
-    assert(true, expression.evaluate(), "Interpreter");
+    scanner = new Scanner("1 - 1");
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("0", final, "Basic Interpreter");
 
-    expression = new Grouping(new Binary(new Literal(5), new Token(TokenType.PLUS, "+", null, 1), new Literal(5)));
-    assert(10, expression.evaluate(), "Interpreter");
+    scanner = new Scanner("2 * 2");
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("4", final, "Basic Interpreter");
+
+    scanner = new Scanner("1 / 2");
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("0.5", final, "Basic Interpreter");
+
+    scanner = new Scanner('"hello"');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("hello", final, "Basic Interpreter");
+
+    scanner = new Scanner('1 - -1');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("2", final, "Basic Interpreter");
+
+    scanner = new Scanner('true == true');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
+
+    scanner = new Scanner('true == false');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("false", final, "Basic Interpreter");
+
+    scanner = new Scanner('true != true');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("false", final, "Basic Interpreter");
+
+    scanner = new Scanner('true != false');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
+
+    scanner = new Scanner('3 > 2');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
+
+    scanner = new Scanner('3 < 6');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
+
+    scanner = new Scanner('4 >= 4');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
+
+    scanner = new Scanner('4 <= 4');
+    resp = scanner.scanTokens();
+    parser = new Parser(resp);
+    expression = parser.parse();
+    final = interpreter.interpret(expression);
+    assert("true", final, "Basic Interpreter");
 }
 
 function test() {
@@ -269,7 +397,7 @@ function test() {
     testNestingScanner();
     testParser();
     testAstPrinter();
-    // testInterpreter();
+    testBasicInterpreter();
 
     if (process.argv.length > 2 && (process.argv[2] == "--verbose" || process.argv[2] == "-v")) {
         console.log(`${testCount - failed} of ${testCount} tests passed.`);
