@@ -1,5 +1,5 @@
 const { Binary, Unary, Grouping, Literal } = require("./Expr");
-const TokenType = require("./TokenType");
+const { TokenType } = require("./TokenType");
 
 let { jsLoxError } = require("./error");
 class Parser {
@@ -85,19 +85,12 @@ class Parser {
     }
     
     #match(types) {
-        console.log(this);
         for (let type of types) {
-          if (this.#check(type)) {
-            this.#advance();
-            return true;
-          }
+            if (this.#check(type)) {
+                this.#advance();
+                return true;
+            }
         }
-        // types.forEach(type => {
-        //     if (this.#check(type)) {
-        //         this.#advance();
-        //         return true;
-        //     }            
-        // }); 
         return false;
     }
     

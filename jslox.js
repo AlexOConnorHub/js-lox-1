@@ -3,7 +3,6 @@ let { jsLoxError } = require('./error');
 let { Scanner } = require("./Scanner");
 let { Parser } = require("./Parser");
 let { Interpreter } = require("./Interpreter");
-let { AstPrinter } = require("./AstPrinter");
 class Lox {
     static interpreter = new Interpreter();
     hadError = false;
@@ -58,6 +57,8 @@ class Lox {
                 let ret = this.#run(input);
                 if (ret instanceof jsLoxError) {
                     jsLoxError.warn(ret.message);
+                } else if (ret != 0) {
+                    throw ret;
                 }
                 process.stdout.write("> ");
             }
@@ -73,15 +74,8 @@ class Lox {
             expression = parser.parse();
         } catch (error) {
             // Stop if there was a syntax error.
-            console.log(error);
             return error;
         }
-        console.log(new AstPrinter().print(expression));
-
-        // For now, just print the tokens.
-        tokens.forEach(token => {
-            console.log(token.toString());
-        });
 
         try {
             this.interpreter.interpret(expression);

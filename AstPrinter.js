@@ -1,4 +1,4 @@
-class AstPritner  {
+class AstPrinter  {
     print(expr) {   
         return expr.accept(this);
     }
@@ -31,4 +31,4 @@ class AstPritner  {
     }
 }
 
-module.exports = { AstPritner };
+module.exports = { AstPrinter };

@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-class Binary{
+class Binary {
     constructor ( left, operator, right ) {
         this.left = left;
         this.operator = operator;
@@ -11,7 +9,7 @@ class Binary{
     }
 }
 
-class Grouping{
+class Grouping {
     constructor ( expression ) {
         this.expression = expression;
     }
@@ -20,7 +18,7 @@ class Grouping{
     }
 }
 
-class Literal{
+class Literal {
     constructor ( value ) {
         this.value = value;
     }
@@ -29,7 +27,7 @@ class Literal{
     }
 }
 
-class Unary{
+class Unary {
     constructor ( operator, right ) {
         this.operator = operator;
         this.right = right;

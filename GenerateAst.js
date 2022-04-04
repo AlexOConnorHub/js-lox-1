@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { exit } from "./error";
-import { writeFileSync } from 'fs';
+const { jsLoxError } = require("./error");
+const { writeFileSync } = require('fs');
 
 function defineAst(outputDir, baseName, types) {
-    let data = `#!/usr/bin/env node\n\nclass ${baseName} {\n    accept (visitor) {}\n};\n\n`;
+    let data = ``;
 
     // data += `abstract class ${baseName} {\n`;
     // The AST classes.
@@ -16,19 +16,17 @@ function defineAst(outputDir, baseName, types) {
 
     data += "module.exports = {\n";
 
-    data += `    ${baseName},\n`
     types.forEach(type => {
         data += `    ${type[0]},\n`
     });
 
     data += "}\n"
 
-    writeFileSync(outputDir + "/" + baseName + ".js", data);
+    writeFileSync(outputDir + "/" + baseName + ".js", data, "");
 }
 
 function defineType(baseName, className, fieldList) {
-    let data = `class ${className} extends ${baseName}{\n`;
-    // let data = `class ${className} extends ${baseName} {\n`;
+    let data = `class ${className} {\n`;
 
     // Constructor.
     data += `    constructor ( `
@@ -37,7 +35,7 @@ function defineType(baseName, className, fieldList) {
         data += `${fieldList[i]}, `;
     }
     
-    data += `${fieldList[fieldList.length - 1]} ) {\n        super()\n`;
+    data += `${fieldList[fieldList.length - 1]} ) {\n`;
 
     // Store parameters in fields.
     fieldList.forEach(field => {
@@ -54,7 +52,8 @@ function defineType(baseName, className, fieldList) {
 } 
 
 if (process.argv.length != 3) {
-    exit('from "GernarateAst.js"', 64);
+    let err = new jsLoxError('from "GernarateAst.js"', 64);
+    jsLoxError.exit(err.exitCode, err.message);
 }
 
 defineAst(process.argv[2], "Expr", [

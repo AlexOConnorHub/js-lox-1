@@ -1,4 +1,4 @@
-const TokenType = require("./TokenType");
+const { TokenType } = require("./TokenType");
 
 class Token {  
     constructor(type, lexeme, literal, line){

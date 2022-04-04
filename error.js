@@ -5,6 +5,9 @@ let codes = {
     64  : "Usage: generate_ast <output directory>",
     65  : "Misuse of JSLoX",
     70  : "Runtime error",
+    71  : "Operands must be two numbers or two strings",
+    72  : "Operand must be a number",
+    73  : "Operands must be numbers",
     150 : "File does not exist",
     151 : "File read error"
 }

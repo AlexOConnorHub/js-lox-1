@@ -1,10 +1,11 @@
-const TokenType = require("./TokenType");
+const { jsLoxError } = require("./error");
+const { TokenType } = require("./TokenType");
 
 class Interpreter {
 
     interpret(expression) { 
         try {
-            value = this.#evaluate(expression);
+            let value = this.#evaluate(expression);
             console.log(this.#stringify(value));
         } catch (error) {
             throw error;
@@ -38,20 +39,20 @@ class Interpreter {
     }
 
     visitBinaryExpr(expr) {
-        left = this.#evaluate(expr.left);
-        right = this.#evaluate(expr.right); 
+        let left = this.#evaluate(expr.left);
+        let right = this.#evaluate(expr.right); 
 
         switch (expr.operator.type) {
-            case GREATER:
+            case TokenType.GREATER:
                 this.#checkNumberOperands(expr.operator, left, right);
                 return left > right;
-            case GREATER_EQUAL:
+            case TokenType.GREATER_EQUAL:
                 this.#checkNumberOperands(expr.operator, left, right);
                 return left >= right;
-            case LESS:
+            case TokenType.LESS:
                 this.#checkNumberOperands(expr.operator, left, right);
                 return left < right;
-            case LESS_EQUAL:
+            case TokenType.LESS_EQUAL:
                 this.#checkNumberOperands(expr.operator, left, right);
                 return left <= right;
             case TokenType.MINUS:
@@ -63,13 +64,13 @@ class Interpreter {
             case TokenType.STAR:
                 this.#checkNumberOperands(expr.operator, left, right);
                 return left * right;
-            case PLUS:
-                if (typeof left == "double" && typeof right == "double") {
+            case TokenType.PLUS:
+                if (typeof left == "number" && typeof right == "number") {
                     return left + right;
-                } else if (typeof left == string && typeof right == string) {
+                } else if (typeof left == "string" && typeof right == "string") {
                     return left + right;
                 }                
-                throw "Operands must be two numbers or two strings.";
+                throw new jsLoxError(-1, 71); // TODO: Actually get lineNumber
             case TokenType.BANG_EQUAL: 
                 return !this.#isEqual(left, right);
             case TokenType.EQUAL_EQUAL: 
@@ -82,13 +83,13 @@ class Interpreter {
     }
 
     #checkNumberOperand(operator, operand) {
-        if (typeof operand == double) return;
-        throw "Operand must be a number.";
+        if (typeof operand == "number") return;
+        throw new jsLoxError(-1, 72); // TODO: Actually get lineNumber
     }
 
     #checkNumberOperands( operator, left, right) {
-        if (typeof left == "double" && typeof right == "double") return;
-        throw "Operands must be numbers.";
+        if (typeof left == "number" && typeof right == "number") return;
+        throw new jsLoxError(-1, 73); // TODO: Actually get lineNumber
     }
 
     #evaluate(expr) {
