@@ -3,12 +3,16 @@ const { TokenType } = require("./TokenType");
 
 class Interpreter {
 
-    interpret(expression) { 
+    interpret(statements) { 
         try {
-            let value = this.#evaluate(expression);
-            return this.#stringify(value);
+            for (let statement of statements) {
+                this.#execute(statement);
+            }
+            // statements.foreach(statement => {
+            //     this.#execute(statement);
+            // });
         } catch (error) {
-            throw error;
+            throw error
         }
     }
     
@@ -80,6 +84,21 @@ class Interpreter {
 
         // Unreachable.
         return null;
+    }
+
+    visitExpressionStmt(stmt) {
+        this.#evaluate(stmt.expression);
+        return null;
+    }
+
+    visitPrintStmt(stmt) {
+        let value = this.#evaluate(stmt.expression);
+        console.log(this.#stringify(value));
+        return null;
+    }
+
+    #execute(stmt) {
+        stmt.accept(this);
     }
 
     #checkNumberOperand(operator, operand) {

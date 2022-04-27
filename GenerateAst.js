@@ -62,3 +62,8 @@ defineAst(process.argv[2], "Expr", [
     ["Literal", ["value"]],
     ["Unary", ["operator", "right"]]
 ]);
+
+defineAst(process.argv[2], "Stmt", [
+    ["Expression", ["expression"]],
+    ["Print", ["expression"]],
+]);

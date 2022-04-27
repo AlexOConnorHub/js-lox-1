@@ -67,8 +67,9 @@ class Lox {
     #run(source) {
         let scanner = new Scanner(source);
         let parser = new Parser(scanner.scanTokens());
+        let statements = parser.parse();
         try {
-            console.log(Lox.interpreter.interpret(parser.parse()));
+            Lox.interpreter.interpret(statements);
         } catch (error) {
             return error;
         }

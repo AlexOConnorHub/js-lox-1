@@ -1,4 +1,5 @@
 const { Binary, Unary, Grouping, Literal } = require("./Expr");
+const { Expression, Print } = require("./Stmt");
 const { TokenType } = require("./TokenType");
 
 let { jsLoxError } = require("./error");
@@ -157,12 +158,31 @@ class Parser {
     }
     
     parse() {
-        try {
-          return this.#expression();
-        } catch (error) {
-          throw error;
+        let statements = [];
+        while (!this.#isAtEnd()) {
+            statements.push(this.#statement());
         }
-      }
+        return statements; 
+    }
+
+    #statement() {
+        if (this.#match([TokenType.PRINT])) {
+            return this.#printStatement();
+        }
+        return this.#expressionStatement();
+    }
+
+    #printStatement() {
+        let value = this.#expression();
+        this.#consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Print(value);
+    }    
+    
+    #expressionStatement() {
+        let expr = this.#expression();
+        this.#consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Expression(expr);
+    }
 }
 
 module.exports = { Parser };
