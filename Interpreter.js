@@ -1,8 +1,12 @@
 const { jsLoxError } = require("./error");
 const { TokenType } = require("./TokenType");
+const { Environment } = require("./Environment");
 
 class Interpreter {
-
+    #environment;
+    constructor() {
+        this.#environment = new Environment();
+    }
     interpret(statements) { 
         try {
             for (let statement of statements) {
@@ -86,6 +90,20 @@ class Interpreter {
         return null;
     }
 
+    visitVarStmt(stmt) {
+        let value = null;
+        if (stmt.initializer != null) {
+            value = this.#evaluate(stmt.initializer);
+        }
+    
+        this.#environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    visitVariableExpr(expr) {
+        return this.#environment.get(expr.name);
+    }
+
     visitExpressionStmt(stmt) {
         this.#evaluate(stmt.expression);
         return null;
@@ -95,6 +113,24 @@ class Interpreter {
         let value = this.#evaluate(stmt.expression);
         console.log(this.#stringify(value));
         return null;
+    }
+
+    visitBlockStmt(stmt) {
+        this.executeBlock(stmt.statements, new Environment(this.#environment));
+        return null;
+    }
+
+    executeBlock( statements, environment) {
+        let previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (let statement of statements) {
+                this.#execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
     }
 
     #execute(stmt) {

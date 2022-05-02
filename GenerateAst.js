@@ -57,13 +57,17 @@ if (process.argv.length != 3) {
 }
 
 defineAst(process.argv[2], "Expr", [
+    ["Assign",["name", "value"]],
     ["Binary", ["left", "operator", "right"]],
     ["Grouping", ["expression"]],
     ["Literal", ["value"]],
-    ["Unary", ["operator", "right"]]
+    ["Unary", ["operator", "right"]],
+    ["Variable", ["name"]],
 ]);
 
 defineAst(process.argv[2], "Stmt", [
+    ["Block", ["statements"]],
     ["Expression", ["expression"]],
     ["Print", ["expression"]],
+    ["Var", ["name", "initializer"]],
 ]);

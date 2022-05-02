@@ -1,5 +1,5 @@
-const { Binary, Unary, Grouping, Literal } = require("./Expr");
-const { Expression, Print } = require("./Stmt");
+const { Assign, Binary, Unary, Grouping, Literal, Variable } = require("./Expr");
+const { Block, Expression, Print, Var } = require("./Stmt");
 const { TokenType } = require("./TokenType");
 
 let { jsLoxError } = require("./error");
@@ -63,6 +63,10 @@ class Parser {
         if (this.#match([TokenType.NUMBER, TokenType.STRING])) {
           return new Literal(this.#previous().literal);
         }
+
+        if (this.#match([TokenType.IDENTIFIER])) {
+            return new Variable(this.#previous());
+        }
     
         if (this.#match([TokenType.LEFT_PAREN])) {
           let expr = this.#expression();
@@ -118,7 +122,7 @@ class Parser {
     }
 
     #expression() {
-        return this.#equality();
+        return this.#assignment();
     }
     
     #consume( type, message) {
@@ -129,7 +133,7 @@ class Parser {
 
     #error(token, message) {
         if (token.type == TokenType.EOF) {
-            return (new jsLoxError(token.line, `${message} at end."`));
+            return (new jsLoxError(token.line, `\b\b at end: ${message}"`));
         } else {
             return (new jsLoxError(token.line, message, token));
         }
@@ -156,18 +160,60 @@ class Parser {
           this.#advance();
         }
     }
+
+    #assignment() {
+        let expr = this.#equality();
+        if (this.#match([TokenType.EQUAL])) {
+            let equals = this.#previous();
+            let value = this.#assignment();
+    
+            if (typeof expr == Variable) {
+                return new Assign(expr.name, value);
+            }
+            throw [equals, "Invalid assignment target.",]; 
+        }
+    
+        return expr;
+    }
     
     parse() {
         let statements = [];
         while (!this.#isAtEnd()) {
-            statements.push(this.#statement());
+            statements.push(this.#declaration());
+            // statements.push(this.#statement());
         }
         return statements; 
+    }
+
+    #declaration() {
+        try {
+            if (this.#match([TokenType.VAR])) {
+                return this.#varDeclaration();
+            }
+            return this.#statement();
+        } catch (error) {
+            this.#synchronize();
+            return null;
+        }
+    }
+
+    #varDeclaration() {
+        let name = this.#consume(TokenType.IDENTIFIER, "Expect variable name.");
+        let initializer = null;
+        if (this.#match([TokenType.EQUAL])) {
+            initializer = this.#expression();
+        }
+        // var hell = "Anywhere near Alex!";
+        this.#consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Var(name, initializer);
     }
 
     #statement() {
         if (this.#match([TokenType.PRINT])) {
             return this.#printStatement();
+        }
+        if (this.#match([TokenType.LEFT_BRACE])) {
+            return new Block(this.#block());
         }
         return this.#expressionStatement();
     }
@@ -182,6 +228,17 @@ class Parser {
         let expr = this.#expression();
         this.#consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         return new Expression(expr);
+    }
+
+    #block() {
+        let statements = [];
+    
+        while (!this.#check(TokenType.RIGHT_BRACE) && !this.#isAtEnd()) {
+            statements.push(this.#declaration());
+        }
+    
+        this.#consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 }
 

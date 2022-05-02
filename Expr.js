@@ -1,3 +1,13 @@
+class Assign {
+    constructor ( name, value ) {
+        this.name = name;
+        this.value = value;
+    }
+    accept (visitor) {
+        return visitor.visitAssignExpr(this);
+    }
+}
+
 class Binary {
     constructor ( left, operator, right ) {
         this.left = left;
@@ -37,9 +47,20 @@ class Unary {
     }
 }
 
+class Variable {
+    constructor ( name ) {
+        this.name = name;
+    }
+    accept (visitor) {
+        return visitor.visitVariableExpr(this);
+    }
+}
+
 module.exports = {
+    Assign,
     Binary,
     Grouping,
     Literal,
     Unary,
+    Variable,
 }

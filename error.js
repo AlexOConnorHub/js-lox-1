@@ -14,9 +14,11 @@ let codes = {
 class jsLoxError {
     constructor(lineNumber, error, errorNumber, token) {
         let err = "Error: ";
-        while (error.indexOf('\b') == 0) {
-            err = err.slice(0, -1);
-            error = error.slice(1);
+        if (typeof error === "string") {
+            while (error.indexOf('\b') == 0) {
+                err = err.slice(0, -1);
+                error = error.slice(1);
+            }
         }
         if (lineNumber != null) {
             this.message = `\x1b[6;31;40m[line ${lineNumber}] ${err}$error$\x1b[0m`;
@@ -25,7 +27,7 @@ class jsLoxError {
         }
         if (typeof error == "string") {
             if (token != null) {
-                this.message = this.message.replace("$error$", `at ${token.lexeme} ${message}`);
+                this.message = this.message.replace("$error$", `at ${token.lexeme} ${error}`);
             } else {
                 this.message = this.message.replace("$error$", error);
             }
