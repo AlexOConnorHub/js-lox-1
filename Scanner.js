@@ -73,7 +73,7 @@ class Scanner {
                 }
                 break;
             case ' ': case '\r': case '\t': break; // Ignore whitespace.
-            case '\n': line++; break;
+            case '\n': this.#line++; break;
             case '"': this.#string(); break;
             default:             
                 if (this.#isDigit(c)) {

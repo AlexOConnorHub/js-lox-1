@@ -12,9 +12,6 @@ class Interpreter {
             for (let statement of statements) {
                 this.#execute(statement);
             }
-            // statements.foreach(statement => {
-            //     this.#execute(statement);
-            // });
         } catch (error) {
             throw error
         }
@@ -121,15 +118,15 @@ class Interpreter {
     }
 
     executeBlock( statements, environment) {
-        let previous = this.environment;
+        let previous = this.#environment;
         try {
-            this.environment = environment;
+            this.#environment = environment;
 
             for (let statement of statements) {
                 this.#execute(statement);
             }
         } finally {
-            this.environment = previous;
+            this.#environment = previous;
         }
     }
 

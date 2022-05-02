@@ -18,7 +18,7 @@ class Lox {
     }
 
     #runFile(path) {
-        fs.readFile(path, (err, data) => {
+        require("fs").readFile(path, (err, data) => {
             if (err) {
                 if (err["code"] == "ENOENT") {
                     let err = new jsLoxError(-1, 150);
@@ -29,9 +29,9 @@ class Lox {
                 }
                 return;
             }
-            let ret = this.#run(toString(data));
+            let ret = this.#run(data.toString());
             if (ret instanceof jsLoxError) {
-                jsLoxError.warn(error.message);
+                jsLoxError.warn(ret.message);
             } else if (ret != 0) {
                 throw ret;
             } else {

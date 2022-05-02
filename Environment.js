@@ -9,7 +9,7 @@ class Environment {
     }
 
     get(name) {
-        if (this.#values[name] !== undefined) {
+        if (this.#values[name.lexeme] !== undefined) {
             return this.#values[name.lexeme];
         }
     

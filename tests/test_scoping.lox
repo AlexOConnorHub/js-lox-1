@@ -1,0 +1,44 @@
+// var error = false;
+var glob = "Global";
+print "Global == " + glob;
+// if glob != 1 {
+//     error = true;
+//     // print "glob != 1";
+// }
+{
+    var glob = "First local";
+    print "First local == " + glob;
+    // if glob != 2 {
+    //     error = true;
+    //     // print "glob != 2";
+    //     if glob == 1 {
+    //         // print "glob == 1 instead";
+    //     }
+    // }
+}
+print "Global == " + glob;
+// if glob != 1 {
+//     error = true;
+//     // print "glob != 1";
+//     if glob == 2 {
+//         // print "glob == 2 instead";
+//     }
+// }
+{
+    var glob = "Second local";
+    print "Second local == " + glob;
+    // if glob != 3 {
+    //     error = true;
+    //     // print "glob != 3";
+    //     if glob == 1 {
+    //         // print "glob == 1 instead";
+    //     }
+    //     if glob == 2 {
+    //         // print "glob == 2 instead";
+    //     }
+    // }
+}
+print "Global == " + glob;
+// if !error {
+//     // print "Test Scoping OK";
+// }
