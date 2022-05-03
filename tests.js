@@ -424,6 +424,16 @@ function test() {
             "Test or OK",
             // test_file_works.lox
             "Test File OK",
+            // test_for_loop.lox
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
             // test_if_statement.lox
             "Test if OK",
             "Test if OK",
@@ -438,6 +448,9 @@ function test() {
             "Test Variable OK",
             "Reassigned Variable OK",
             "Concatenation OK",
+            // test_while_loop.lox
+            "In while loop",
+            "Out of while loop",
         ];
         assert(expected.length, output.length, "File test count");
         if (expected.length == output.length) {

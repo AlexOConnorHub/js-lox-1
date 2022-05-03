@@ -46,10 +46,21 @@ class Var {
     }
 }
 
+class While {
+    constructor ( condition, body ) {
+        this.condition = condition;
+        this.body = body;
+    }
+    accept (visitor) {
+        return visitor.visitWhileStmt(this);
+    }
+}
+
 module.exports = {
     Block,
     Expression,
     If,
     Print,
     Var,
+    While,
 }

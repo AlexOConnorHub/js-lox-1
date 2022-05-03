@@ -151,6 +151,13 @@ class Interpreter {
         return this.#evaluate(expr.right);
     }
 
+    visitWhileStmt(stmt) {
+        while (this.#isTruthy(this.#evaluate(stmt.condition))) {
+            this.#execute(stmt.body);
+        }
+        return null;
+    }
+
     #execute(stmt) {
         stmt.accept(this);
     }

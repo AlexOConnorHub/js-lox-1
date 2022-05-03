@@ -1,0 +1,6 @@
+var cond = true;
+while(cond) {
+    print "In while loop";
+    cond = false;
+}
+print "Out of while loop";

@@ -63,4 +63,5 @@ defineAst(process.argv[2], "Stmt", [
     ["If", ["condition", "thenBranch", "elseBranch"]],
     ["Print", ["expression"]],
     ["Var", ["name", "initializer"]],
+    ["While", ["condition", "body"]],
 ]);
