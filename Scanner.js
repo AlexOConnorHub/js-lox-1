@@ -36,7 +36,6 @@ class Scanner {
     scanTokens() {
         let err;
         while (!this.#isAtEnd()) {
-            // We are at the beginning of the next lexeme.
             this.#start = this.#current;
             err = this.#scanToken();
             if (err  != 0) {
@@ -105,7 +104,7 @@ class Scanner {
         if (this.#source[this.#current] != expected) return false;
         this.#current++;
         return true;
-      }
+    }
 
     #peek() {
         if (this.#isAtEnd()) return '\0';

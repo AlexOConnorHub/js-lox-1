@@ -31,6 +31,7 @@ const TokenType = {
     AND    : "and",
     CLASS  : "class",
     ELSE   : "else",
+    EOF    : "eof",
     FALSE  : "false",
     FUN    : "fun",
     FOR    : "for",
@@ -44,7 +45,6 @@ const TokenType = {
     TRUE   : "true",
     VAR    : "var",
     WHILE  : "while",
-    EOF    : "eof"
 };
   
 module.exports = { TokenType };

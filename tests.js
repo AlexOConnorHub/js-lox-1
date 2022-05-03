@@ -6,8 +6,9 @@ const { Scanner } = require("./Scanner");
 const { Token } = require("./Token");
 const { Binary, Grouping, Literal, Unary } = require("./Expr");
 const { Interpreter } = require("./Interpreter");
-const util = require("util");
-const fs = require("fs");
+const { Environment } = require("./Environment");
+const { jsLoxError } = require("./error");
+const { execSync }= require('child_process');
 
 let testCount = 0;
 let failed = 0;
@@ -218,53 +219,14 @@ function testNestingScanner() {
 }
 
 function testParser() {
-    let scanner = new Scanner("((57 / (2 - -4)) <= (-8 * -9)) != true");
+    let scanner = new Scanner("2 == 2;");
     let parser = new Parser(scanner.scanTokens());
     let expressions = parser.parse();
 
-    // Top level
-    assert(true, expressions instanceof Binary, "Parser");
-
-    // Second level
-    assert(true, expressions.left instanceof Grouping, "Parser");
-    assert(true, expressions.operator instanceof Token, "Parser");
-    assert(true, expressions.right instanceof Literal, "Parser");
-
-    // Third level
-    assert(true, expressions.left.expression instanceof Binary, "Parser");
-
-    // Fourth level
-    assert(true, expressions.left.expression.left instanceof Grouping, "Parser");
-    assert(true, expressions.left.expression.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.right instanceof Grouping, "Parser");
-
-    // Fifth level
-    assert(true, expressions.left.expression.left.expression instanceof Binary, "Parser");
-    assert(true, expressions.left.expression.right.expression instanceof Binary, "Parser");
-    
-    // Sixth level
-    assert(true, expressions.left.expression.left.expression.left instanceof Literal, "Parser");
-    assert(true, expressions.left.expression.left.expression.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.left.expression.right instanceof Grouping, "Parser");
-    assert(true, expressions.left.expression.right.expression.left instanceof Unary, "Parser");
-    assert(true, expressions.left.expression.right.expression.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.right.expression.right instanceof Unary, "Parser");
-
-    // Seventh level
-    assert(true, expressions.left.expression.left.expression.right.expression instanceof Binary, "Parser");
-    assert(true, expressions.left.expression.right.expression.left.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.right.expression.left.right instanceof Literal, "Parser");
-    assert(true, expressions.left.expression.right.expression.right.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.right.expression.right.right instanceof Literal, "Parser");
-
-    // Eighth level
-    assert(true, expressions.left.expression.left.expression.right.expression.left instanceof Literal, "Parser");
-    assert(true, expressions.left.expression.left.expression.right.expression.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.left.expression.right.expression.right instanceof Unary, "Parser");
-
-    // Ninth level
-    assert(true, expressions.left.expression.left.expression.right.expression.right.operator instanceof Token, "Parser");
-    assert(true, expressions.left.expression.left.expression.right.expression.right.right instanceof Literal, "Parser");
+    assert(1, expressions.length, "Parser");
+    assert(2, expressions[0].expression.left.value, "Parser");
+    assert(TokenType.EQUAL_EQUAL, expressions[0].expression.operator.type, "Parser");
+    assert(2, expressions[0].expression.right.value, "Parser");
 }
 
 function testAstPrinter() {
@@ -284,104 +246,113 @@ function testAstPrinter() {
 }
 
 function testBasicInterpreter() {
-    let scanner = new Scanner("1 + 1");
+    let scanner = new Scanner("var test = 1 + 1;");
     let resp = scanner.scanTokens();
     let parser = new Parser(resp);
     let expression = parser.parse();
     let interpreter = new Interpreter();
-    let final = interpreter.interpret(expression);
-    assert("2", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("2", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner("1 - 1");
+    scanner = new Scanner("var test = 1 - 1;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("0", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("0", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner("2 * 2");
+    scanner = new Scanner("var test = 2 * 2;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("4", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("4", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner("1 / 2");
+    scanner = new Scanner("var test = 1 / 2;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("0.5", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("0.5", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('"hello"');
+    scanner = new Scanner('var test = "hello";');
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("hello", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("hello", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('1 - -1');
+    scanner = new Scanner('var test = 1 - -1;');
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("2", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("2", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('true == true');
+    scanner = new Scanner("var test = true == true;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('true == false');
+    scanner = new Scanner("var test = true == false;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("false", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("false", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('true != true');
+    scanner = new Scanner("var test = true != true;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("false", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("false", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('true != false');
+    scanner = new Scanner("var test = true != false;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('3 > 2');
+    scanner = new Scanner("var test = 3 > 2;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('3 < 6');
+    scanner = new Scanner("var test = 3 < 6;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('4 >= 4');
+    scanner = new Scanner("var test = 4 >= 4;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
 
-    scanner = new Scanner('4 <= 4');
+    scanner = new Scanner("var test = 4 <= 4;");
     resp = scanner.scanTokens();
     parser = new Parser(resp);
     expression = parser.parse();
-    final = interpreter.interpret(expression);
-    assert("true", final, "Basic Interpreter");
+    interpreter.interpret(expression);
+    assert("true", String(interpreter.visitVariableExpr({name: {lexeme: "test"}})), "Basic Interpreter");
+}
+
+function testEnvironment() {
+    let nestedEnv = new Environment();
+    let globalEnv = new Environment(nestedEnv);
+    nestedEnv.define("nested", "1");
+    globalEnv.define("global", "2");
+    assert("1", String(nestedEnv.get({lexeme: "nested"})), "Environment");
+    assert("2", String(globalEnv.get({lexeme: "global"})), "Environment");
 }
 
 function test() {
@@ -389,16 +360,78 @@ function test() {
         console.log("Usage: node test.js [--verbose|-v] [--help|-h]");
         return;
     }
-
-    testToken();
-    testBasicExpr();
-    testNestingExpr();
-    testBasicScanner();
-    testNestingScanner();
-    testParser();
-    testAstPrinter();
-    testBasicInterpreter();
-
+    try {
+        testToken();
+    } catch (e) {
+        console.log("Token test failed: " + e.toString());
+    }
+    try {
+        testBasicExpr();
+    } catch (e) {
+        console.log("Basic expr test failed: " + e.toString());
+    }
+    try {
+        testNestingExpr();
+    } catch (e) {
+        console.log("Nexting expr test failed: " + e.toString());
+    }
+    try {
+        testBasicScanner();
+    } catch (e) {
+        console.log("Basic scanner test failed: " + e.toString());
+    }
+    try {
+        testNestingScanner();
+    } catch (e) {
+        console.log("Nesting scanner test failed: " + e.toString());
+    }
+    try {
+        testParser();
+    } catch (e) {
+        console.log("Parser test failed: " + e.toString());
+    }
+    try {
+        testAstPrinter();
+    } catch (e) {
+        console.log("Ast printer test failed: " + e.toString());
+    }
+    try {
+        testBasicInterpreter();
+    } catch (e) {
+        console.log("Basic interpreter test failed: " + e.toString());
+    }
+    try {
+        testEnvironment();
+    } catch (e) {
+        if (e instanceof jsLoxError) {
+            console.log("Environment test failed: " + e.message);
+        } else {
+            console.log("Environment test failed: " + e.toString());
+        }
+    }
+    try {
+        const fileCount = execSync("filecount=0; for file in $(ls -d $PWD/tests/*); do filecount=$(($filecount + 1)); done; echo $filecount;").toString();
+        testCount += Number(fileCount);
+        const output = execSync("for file in $(ls -d $PWD/tests/*); do ./jslox.js $file; done").toString().split("\n");
+        output.pop();
+        const expected = [
+            "Test File OK",
+            "Global == Global",
+            "First local == First local",
+            "Global == Global",
+            "Second local == Second local",
+            "Global == Global",
+            "Test Variable OK",
+            "Reassigned Variable OK",
+            "Concatenation OK",
+        ];
+        assert(expected.length, output.length, "File test count");
+        for (let i = 0; i < output.length; i++) {
+            assert(expected[i], output[i], "Test " + i);
+        }
+    } catch (e) {
+        console.log("File test failed: " + e.toString());
+    }
     if (process.argv.length > 2 && (process.argv[2] == "--verbose" || process.argv[2] == "-v")) {
         console.log(`${testCount - failed} of ${testCount} tests passed.`);
     }

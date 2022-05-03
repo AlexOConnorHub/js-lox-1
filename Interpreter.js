@@ -18,7 +18,7 @@ class Interpreter {
     }
     
     #stringify(object) {
-        return (object == null)? "nil": String(object);    
+        return (object == null) ? "nil" : String(object);    
     }
 
     visitLiteralExpr(expr) {
@@ -31,11 +31,9 @@ class Interpreter {
 
     visitUnaryExpr(expr) {
         let right = this.#evaluate(expr.right);
-    
         switch (expr.operator.type) {
             case TokenType.BANG:
                 return !this.#isTruthy(right);
-
             case TokenType.MINUS:
                 this.#checkNumberOperand(expr.operator, right);
                 return -right;
@@ -46,7 +44,6 @@ class Interpreter {
     visitBinaryExpr(expr) {
         let left = this.#evaluate(expr.left);
         let right = this.#evaluate(expr.right); 
-
         switch (expr.operator.type) {
             case TokenType.GREATER:
                 this.#checkNumberOperands(expr.operator, left, right);
@@ -82,7 +79,6 @@ class Interpreter {
                 return this.#isEqual(left, right);
 
         }
-
         // Unreachable.
         return null;
     }
@@ -92,7 +88,6 @@ class Interpreter {
         if (stmt.initializer != null) {
             value = this.#evaluate(stmt.initializer);
         }
-    
         this.#environment.define(stmt.name.lexeme, value);
         return null;
     }
@@ -117,11 +112,16 @@ class Interpreter {
         return null;
     }
 
+    visitAssignExpr(expr) {
+        let value = this.#evaluate(expr.value);
+        this.#environment.assign(expr.name, value);
+        return value;
+    }
+
     executeBlock( statements, environment) {
         let previous = this.#environment;
         try {
             this.#environment = environment;
-
             for (let statement of statements) {
                 this.#execute(statement);
             }

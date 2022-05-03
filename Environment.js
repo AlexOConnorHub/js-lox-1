@@ -12,9 +12,9 @@ class Environment {
         if (this.#values[name.lexeme] !== undefined) {
             return this.#values[name.lexeme];
         }
-    
-        if (this.#enclosing !== null) return this.#enclosing.get(name);
-
+        if (this.#enclosing !== null) {
+            return this.#enclosing.get(name);
+        }
         throw new jsLoxError(null,  "Undefined variable '" + name.lexeme + "'.", 1, name); // TODO: Make sure works
     }
     
@@ -23,16 +23,14 @@ class Environment {
     }
 
     assign(name, value) {
-        if (this.#values[name.lexeme] === undefined) {
+        if (this.#values[name.lexeme] !== undefined) {
             this.#values[name.lexeme] = value;
             return;
         }
-
         if (this.#enclosing !== null) {
             this.#enclosing.assign(name, value);
             return;
         }
-    
         throw new jsLoxError(null,  "Undefined variable '" + name.lexeme + "'.", 1, name); // TODO: Make sure works
       }
 }

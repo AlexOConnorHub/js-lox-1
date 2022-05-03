@@ -11,6 +11,7 @@ let codes = {
     150 : "File does not exist",
     151 : "File read error"
 }
+
 class jsLoxError {
     constructor(lineNumber, error, errorNumber, token) {
         let err = "Error: ";

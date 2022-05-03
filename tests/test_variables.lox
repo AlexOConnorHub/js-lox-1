@@ -1,2 +1,10 @@
 var variable = "Test Variable OK";
 print variable;
+
+variable = "Reassigned Variable OK";
+print variable;
+
+var a = "Concatenation";
+var b = " OK";
+var c = a + b;
+print c;
