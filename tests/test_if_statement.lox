@@ -1,0 +1,20 @@
+var True = true;
+var False = false;
+
+if (True == True) {
+    print "Test if OK";
+} else {
+    print "Test if NOT OK";
+}
+
+if (False == False) {
+    print "Test if OK";
+} else {
+    print "Test if NOT OK";
+}
+
+if (True == False) {
+    print "Test if NOT OK";
+} else {
+    print "Test if OK";
+}

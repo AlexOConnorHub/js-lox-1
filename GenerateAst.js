@@ -52,6 +52,7 @@ defineAst(process.argv[2], "Expr", [
     ["Binary", ["left", "operator", "right"]],
     ["Grouping", ["expression"]],
     ["Literal", ["value"]],
+    ["Logical", ["left", "operator", "right"]],
     ["Unary", ["operator", "right"]],
     ["Variable", ["name"]],
 ]);
@@ -59,6 +60,7 @@ defineAst(process.argv[2], "Expr", [
 defineAst(process.argv[2], "Stmt", [
     ["Block", ["statements"]],
     ["Expression", ["expression"]],
+    ["If", ["condition", "thenBranch", "elseBranch"]],
     ["Print", ["expression"]],
     ["Var", ["name", "initializer"]],
 ]);

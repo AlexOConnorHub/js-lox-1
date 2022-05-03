@@ -415,19 +415,37 @@ function test() {
         const output = execSync("for file in $(ls -d $PWD/tests/*); do ./jslox.js $file; done").toString().split("\n");
         output.pop();
         const expected = [
+            // test_and_or.lox
+            "Test and OK",
+            "Test and OK",
+            "Test and OK",
+            "Test or OK",
+            "Test or OK",
+            "Test or OK",
+            // test_file_works.lox
             "Test File OK",
+            // test_if_statement.lox
+            "Test if OK",
+            "Test if OK",
+            "Test if OK",
+            // test_scoping.lox
             "Global == Global",
             "First local == First local",
             "Global == Global",
             "Second local == Second local",
             "Global == Global",
+            // test_variables.lox
             "Test Variable OK",
             "Reassigned Variable OK",
             "Concatenation OK",
         ];
         assert(expected.length, output.length, "File test count");
-        for (let i = 0; i < output.length; i++) {
-            assert(expected[i], output[i], "Test " + i);
+        if (expected.length == output.length) {
+            for (let i = 0; i < output.length; i++) {
+                assert(expected[i], output[i], "Test " + i);
+            }
+        } else {
+            console.log("Did not test file outputs because the count of expected lines and output lines are different.");
         }
     } catch (e) {
         console.log("File test failed: " + e.toString());

@@ -1,0 +1,35 @@
+if (true and true) {
+    print "Test and OK";
+} else {
+    print "Test and NOT OK";
+}
+
+if (false and false) {
+    print "Test and NOT OK";
+} else {
+    print "Test and OK";
+}
+
+if (true and false) {
+    print "Test and NOT OK";
+} else {
+    print "Test and OK";
+}
+
+if (true or true) {
+    print "Test or OK";
+} else {
+    print "Test or NOT OK";
+}
+
+if (false or false) {
+    print "Test or NOT OK";
+} else {
+    print "Test or OK";
+}
+
+if (true or false) {
+    print "Test or OK";
+} else {
+    print "Test or NOT OK";
+}

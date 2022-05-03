@@ -37,6 +37,17 @@ class Literal {
     }
 }
 
+class Logical {
+    constructor ( left, operator, right ) {
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
+    accept (visitor) {
+        return visitor.visitLogicalExpr(this);
+    }
+}
+
 class Unary {
     constructor ( operator, right ) {
         this.operator = operator;
@@ -51,7 +62,7 @@ class Variable {
     constructor ( name ) {
         this.name = name;
     }
-    accept(visitor) {
+    accept (visitor) {
         return visitor.visitVariableExpr(this);
     }
 }
@@ -61,6 +72,7 @@ module.exports = {
     Binary,
     Grouping,
     Literal,
+    Logical,
     Unary,
     Variable,
 }

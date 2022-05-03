@@ -1,7 +1,7 @@
-const { Assign, Binary, Unary, Grouping, Literal, Variable } = require("./Expr");
-const { Block, Expression, Print, Var } = require("./Stmt");
+const { Assign, Binary, Unary, Logical,  Grouping, Literal, Variable } = require("./Expr");
+const { Block, Expression, If, Print, Var } = require("./Stmt");
 const { TokenType } = require("./TokenType");
-let { jsLoxError } = require("./error");
+const { jsLoxError } = require("./error");
 
 class Parser {
     constructor(tokens) {
@@ -154,7 +154,7 @@ class Parser {
     }
 
     #assignment() {
-        let expr = this.#equality();
+        let expr = this.#or();
         if (this.#match([TokenType.EQUAL])) {
             let equals = this.#previous();
             let value = this.#assignment();
@@ -162,6 +162,26 @@ class Parser {
                 return new Assign(expr.name, value);
             }
             throw [equals, "Invalid assignment target.",]; 
+        }
+        return expr;
+    }
+
+    #or() {
+        let expr = this.#and();
+        while (this.#match([TokenType.OR])) {
+            let operator = this.#previous();
+            let right = this.#and();
+            expr = new Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    #and() {
+        let expr = this.#equality();
+        while (this.#match([TokenType.AND])) {
+            let operator = this.#previous();
+            let right = this.#equality();
+            expr = new Logical(expr, operator, right);
         }
         return expr;
     }
@@ -198,6 +218,9 @@ class Parser {
     }
 
     #statement() {
+        if (this.#match([TokenType.IF])) {
+            return this.#ifStatement();
+        }
         if (this.#match([TokenType.PRINT])) {
             return this.#printStatement();
         }
@@ -218,6 +241,20 @@ class Parser {
         this.#consume(TokenType.SEMICOLON, "Expect ';' after expression.");
         let final = new Expression(expr);
         return final
+    }
+    
+    #ifStatement() {
+        this.#consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        let condition = this.#expression();
+        this.#consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition."); 
+    
+        let thenBranch = this.#statement();
+        let elseBranch = null;
+        if (this.#match([TokenType.ELSE])) {
+          elseBranch = this.#statement();
+        }
+    
+        return new If(condition, thenBranch, elseBranch);
     }
 
     #block() {

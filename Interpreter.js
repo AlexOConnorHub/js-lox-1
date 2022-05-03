@@ -130,6 +130,27 @@ class Interpreter {
         }
     }
 
+    visitIfStmt(stmt) {
+        if (this.#isTruthy(this.#evaluate(stmt.condition))) {
+            this.#execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            this.#execute(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    visitLogicalExpr(expr) {
+        let left = this.#evaluate(expr.left);
+    
+        if (expr.operator.type == TokenType.OR) {
+            if (this.#isTruthy(left)) return left;
+        } else {
+            if (!this.#isTruthy(left)) return left;
+        }
+    
+        return this.#evaluate(expr.right);
+    }
+
     #execute(stmt) {
         stmt.accept(this);
     }
