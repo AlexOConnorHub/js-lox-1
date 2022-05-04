@@ -28,13 +28,11 @@ class Lox {
                 }
                 return;
             }
-            let ret = this.#run(data.toString());
-            if (ret instanceof jsLoxError) {
-                jsLoxError.warn(ret.message);
-            } else if (ret != 0) {
-                throw ret;
-            } else {
+            try {
+                this.#run(data.toString());
                 jsLoxError.exit(0);
+            } catch (error) {
+                this.#processErrorRaw(error, true);
             }
         });
     }
@@ -52,12 +50,10 @@ class Lox {
             if (input == null){
                 jsLoxError.exit(0);
             } else {
-                let ret = this.#run(input);
-                if (ret instanceof jsLoxError) {
-                    jsLoxError.warn(ret.message);
-                } else if (ret != 0) {
-                    console.warn(ret);
-                    // throw ret;
+                try {
+                    this.#run(input);
+                } catch (error) {
+                    this.#processErrorRaw(error, false);
                 }
                 process.stdout.write("> ");
             }
@@ -65,15 +61,44 @@ class Lox {
     }
 
     #run(source) {
-        try {
-            let scanner = new Scanner(source);
-            let parser = new Parser(scanner.scanTokens());
-            let statements = parser.parse();
-            Lox.interpreter.interpret(statements);
-        } catch (error) {
-            return error;
+        let scanner = new Scanner(source);
+        let parser = new Parser(scanner.scanTokens());
+        let statements = parser.parse();
+        Lox.interpreter.interpret(statements);
+    }
+
+    #processErrorRaw(errors, toExit) {
+        if (Array.isArray(errors)) {
+            for (let error of errors) {
+                if (errors.indexOf(error) == errors.length - 1) {
+                    this.#handlejsLoxError(error, toExit);
+                } else if(!this.#handlejsLoxError(error, false)) {
+                    console.warn(error);
+                    console.warn("WARNING: ERROR CAUGHT WAS NOT jsLoxError");
+                }
+            };
+        } else {
+            if (this.#handlejsLoxError(errors, toExit)) {
+                return;
+            }
+            console.warn(errors);
+            console.warn("WARNING: ERROR CAUGHT WAS NOT jsLoxError");
         }
-        return 0;
+    }
+
+    #handlejsLoxError(error, toExit) {
+        if (error instanceof jsLoxError) {
+            if (toExit) {
+                jsLoxError.exit(error.exitCode, error.message);
+            } else {
+                jsLoxError.warn(error.message);
+            }
+            return true;
+        } else {
+            console.warn(error);
+            console.warn("WARNING: ERROR CAUGHT WAS NOT jsLoxError");
+        }
+        return false;
     }
 }
 

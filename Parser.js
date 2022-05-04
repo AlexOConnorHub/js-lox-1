@@ -4,6 +4,7 @@ const { TokenType } = require("./TokenType");
 const { jsLoxError } = require("./error");
 
 class Parser {
+    #errors = [];
     constructor(tokens) {
         this.tokens = tokens;
         this.current = 0;
@@ -70,7 +71,7 @@ class Parser {
             this.#consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping(expr);
         }
-        throw this.#error(this.#peek(), "Expect expression.");
+        this.#error(this.#peek(), "Expect expression.");
       }
 
     #term() {
@@ -123,14 +124,14 @@ class Parser {
         if (this.#check(type)) {
             return this.#advance();
         }
-        throw this.#error(this.#peek(), message);
+        this.#error(this.#peek(), message);
     }
 
     #error(token, message) {
         if (token.type == TokenType.EOF) {
-            return (new jsLoxError(token.line, `\b\b at end: ${message}"`));
+            this.#errors.push(new jsLoxError(token.line, `\b\b at end: ${message}"`));
         } else {
-            return (new jsLoxError(token.line, message, token));
+            this.#errors.push(new jsLoxError(token.line, message, token));
         }
     }
 
@@ -161,7 +162,7 @@ class Parser {
             if (expr instanceof Variable) {
                 return new Assign(expr.name, value);
             }
-            throw [equals, "Invalid assignment target.",]; 
+            this.#error(this.#peek(), "Invalid assignment target."); 
         }
         return expr;
     }
@@ -192,6 +193,9 @@ class Parser {
             let statement = this.#declaration();
             statements.push(statement);
         }
+        if (this.#errors.length > 0) {
+            throw this.#errors;
+        }
         return statements;
     }
 
@@ -203,7 +207,7 @@ class Parser {
             return this.#statement();
         } catch (error) {
             this.#synchronize();
-            throw error; // Book returns null here
+            return null;
         }
     }
 
